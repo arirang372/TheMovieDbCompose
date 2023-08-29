@@ -25,9 +25,10 @@ class MovieDashboardViewModel(private val repository: MovieRepository) : ViewMod
 
     fun fetchMovies(sortBy: String) = viewModelScope.launch {
         try {
+            val moviesPagingData = repository.loadAllMovies(sortBy)
             _dashboardState.value =
                 _dashboardState.value.copy(
-                    uiState = MovieDashboardUiState.Success(repository.loadAllMovies(sortBy))
+                    uiState = MovieDashboardUiState.Success(moviesPagingData)
                 )
 
         } catch (exception: Exception) {
