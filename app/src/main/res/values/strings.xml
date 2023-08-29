@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TheMovieDBCompose</string>
+    <string name="back">Back</string>
+
+    <string name="loading">Loading</string>
+
+    <string name="movie_list_item_image">Movie List Item Image</string>
+</resources>
