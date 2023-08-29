@@ -1,49 +1,41 @@
 package com.john.themoviedb.data.remote
 
-import com.john.themoviedb.BuildConfig
-import com.john.themoviedb.data.remote.models.BaseApiResponse
 import com.john.themoviedb.models.Category
 import com.john.themoviedb.models.Movie
 import com.john.themoviedb.models.Review
 import com.john.themoviedb.models.Trailer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-
 class MovieRemoteDataSource(
     private val service: MovieService
 ) : RemoteDataSource {
 
-    override suspend fun loadAllMovies(sortBy: String): List<Movie> {
-            val results = service.getMovies(sortBy).results
-            val movies = mutableListOf<Movie>()
-            createImageUrls(results)
-            movies.addAll(results)
-            return movies
-    }
+    override suspend fun loadAllMovies(sortBy: String): List<Movie> =
+        service.getMovies(sortBy).results.map { movie ->
+            createImageUrls(movie)
+        }
 
     override fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>> {
         val trailers = flow {
             emit(
                 service.getMovieTrailers(
-                    movieId,
-                    BuildConfig.THE_MOVIE_DB_API_KEY
+                    movieId
                 ).results
             )
         }
         val reviews = flow {
             emit(
                 service.getMovieReviews(
-                    movieId,
-                    BuildConfig.THE_MOVIE_DB_API_KEY
+                    movieId
                 ).results
             )
         }
@@ -92,15 +84,13 @@ class MovieRemoteDataSource(
         }
     }
 
-    private fun createImageUrls(movies: MutableList<Movie>): MutableList<Movie> {
-        for (m in movies) {
-            m.poster_path = String.format(POSTER_IMAGE_URL_BASE, m.poster_path)
-            m.backdrop_path = String.format(BACK_DROP_IMAGE_URL_BASE, m.backdrop_path)
-            m.release_date = getConvertedReleaseDate(m.release_date)
-            m.rating = m.vote_average?.let { it.toFloat() }!!
-            m.rating = m.rating / 2
-        }
-        return movies
+    private fun createImageUrls(m: Movie): Movie {
+        m.poster_path = String.format(POSTER_IMAGE_URL_BASE, m.poster_path)
+        m.backdrop_path = String.format(BACK_DROP_IMAGE_URL_BASE, m.backdrop_path)
+        m.release_date = getConvertedReleaseDate(m.release_date)
+        m.rating = m.vote_average?.let { it.toFloat() }!!
+        m.rating = m.rating / 2
+        return m
     }
 
     companion object {

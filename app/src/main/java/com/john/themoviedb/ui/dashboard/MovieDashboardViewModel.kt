@@ -3,8 +3,12 @@ package com.john.themoviedb.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.john.themoviedb.data.MovieRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.subscribeOn
 import kotlinx.coroutines.launch
 
 class MovieDashboardViewModel(private val repository: MovieRepository) : ViewModel() {
@@ -21,11 +25,11 @@ class MovieDashboardViewModel(private val repository: MovieRepository) : ViewMod
 
     fun fetchMovies(sortBy: String) = viewModelScope.launch {
         try {
-            val results = repository.loadAllMovies(sortBy)
             _dashboardState.value =
                 _dashboardState.value.copy(
-                    uiState = MovieDashboardUiState.Success(results)
+                    uiState = MovieDashboardUiState.Success(repository.loadAllMovies(sortBy))
                 )
+
         } catch (exception: Exception) {
             _dashboardState.value =
                 _dashboardState.value.copy(
