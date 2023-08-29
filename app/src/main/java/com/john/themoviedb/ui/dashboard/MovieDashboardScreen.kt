@@ -100,8 +100,7 @@ private fun MovieDashboardSuccessScreen(
 ) {
     Scaffold(topBar = {
         TheMovieDbTopAppBar(
-            title =
-            stringResource(id = MovieDashboardDestination.titleRes),
+            title = stringResource(id = MovieDashboardDestination.titleRes),
             canNavigateBack = false
         )
     })
