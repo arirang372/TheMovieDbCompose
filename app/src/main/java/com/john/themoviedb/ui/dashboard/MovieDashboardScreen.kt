@@ -27,6 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.john.themoviedb.AppViewModelProvider
@@ -118,23 +121,41 @@ private fun MovieDashboardContent(
     modifier: Modifier
 ) {
     val uiState = dashboardState.uiState as MovieDashboardUiState.Success
-    val movies: List<Movie> = uiState.movies
-
+    val lazyPagingItems: LazyPagingItems<Movie> = uiState.movies.collectAsLazyPagingItems()
     LazyVerticalGrid(
         columns =  GridCells.Adaptive(150.dp),
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(4.dp)
     ) {
-        items(
-            items = movies,
-            key = { movie -> movie.title!! }
-        ) { movie ->
+        if(lazyPagingItems.loadState.refresh == LoadState.Loading) {
+            item {
+                LoadingScreen(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .size(200.dp)
+                )
+            }
+        }
 
+        items(
+            count = lazyPagingItems.itemCount
+        ) { index ->
+            val movie = lazyPagingItems[index]!!
             MovieListItem(
                 movie = movie,
                 onMovieClick = {},
                 modifier = modifier
             )
+        }
+
+        if(lazyPagingItems.loadState.append == LoadState.Loading) {
+            item {
+                LoadingScreen(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .size(200.dp)
+                )
+            }
         }
     }
 }

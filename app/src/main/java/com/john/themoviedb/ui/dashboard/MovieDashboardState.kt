@@ -1,6 +1,8 @@
 package com.john.themoviedb.ui.dashboard
 
+import androidx.paging.PagingData
 import com.john.themoviedb.models.Movie
+import kotlinx.coroutines.flow.Flow
 
 data class MovieDashboardState(
     val movies: List<Movie> = emptyList(),
@@ -11,7 +13,7 @@ data class MovieDashboardState(
 
 sealed interface MovieDashboardUiState {
 
-    data class Success(val movies: List<Movie>) : MovieDashboardUiState
+    data class Success(val movies: Flow<PagingData<Movie>>) : MovieDashboardUiState
 
     data class Error(val message: String) : MovieDashboardUiState
 
