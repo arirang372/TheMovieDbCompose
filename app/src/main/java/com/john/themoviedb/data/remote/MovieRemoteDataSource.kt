@@ -1,5 +1,8 @@
 package com.john.themoviedb.data.remote
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.john.themoviedb.models.Category
 import com.john.themoviedb.models.Movie
 import com.john.themoviedb.models.Review
@@ -19,10 +22,14 @@ class MovieRemoteDataSource(
     private val service: MovieService
 ) : RemoteDataSource {
 
-    override suspend fun loadAllMovies(sortBy: String): List<Movie> =
-        service.getMovies(sortBy).results.map { movie ->
-            createImageUrls(movie)
-        }
+    override fun loadAllMoviesPagingData(sortBy: String): Flow<PagingData<Movie>> {
+        return Pager(
+            config = PagingConfig(pageSize = DEFAULT_PAGE_SIZE),
+            pagingSourceFactory = {
+                MoviesPagingSource(service, sortBy)
+            }
+        ).flow
+    }
 
     override fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>> {
         val trailers = flow {
@@ -72,30 +79,8 @@ class MovieRemoteDataSource(
         return trailers
     }
 
-    private fun getConvertedReleaseDate(movieReleaseDate: String?): String {
-        var simpleDateFormat = SimpleDateFormat("yyyy-dd-MM", Locale.US)
-        return movieReleaseDate.let {
-            try {
-                var date = simpleDateFormat.parse(it)
-                DateFormat.getDateInstance().format(date)
-            } catch (e: ParseException) { //do nothing. }
-                "null release date"
-            }
-        }
-    }
-
-    private fun createImageUrls(m: Movie): Movie {
-        m.poster_path = String.format(POSTER_IMAGE_URL_BASE, m.poster_path)
-        m.backdrop_path = String.format(BACK_DROP_IMAGE_URL_BASE, m.backdrop_path)
-        m.release_date = getConvertedReleaseDate(m.release_date)
-        m.rating = m.vote_average?.let { it.toFloat() }!!
-        m.rating = m.rating / 2
-        return m
-    }
-
     companion object {
-        private const val POSTER_IMAGE_URL_BASE = "http://image.tmdb.org/t/p/w342%s"
-        private const val BACK_DROP_IMAGE_URL_BASE = "http://image.tmdb.org/t/p/original%s"
+        private const val DEFAULT_PAGE_SIZE = 5
         private const val YOUTUBE_VIDEO_URL_BASE = "http://www.youtube.com/watch?v=%s"
         private const val YOUTUBE_IMAGE_URL_BASE = "http://img.youtube.com/vi/%s/0.jpg"
     }

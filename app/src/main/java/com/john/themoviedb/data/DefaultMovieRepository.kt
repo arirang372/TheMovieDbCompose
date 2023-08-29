@@ -16,7 +16,7 @@ class DefaultMovieRepository(
     override suspend fun getMovie(id: Long): Flow<Movie> =
         localDataSource.getMovie(id)
 
-    override suspend fun loadAllMovies(sortBy: String) = remoteDataSource.loadAllMovies(sortBy)
+    override suspend fun loadAllMovies(sortBy: String) = remoteDataSource.loadAllMoviesPagingData(sortBy)
 
     override fun loadReviewsAndTrailers(movieId: Long) =
         remoteDataSource.loadReviewsAndTrailers(movieId)

@@ -17,6 +17,7 @@ interface MovieService {
     @GET("/3/movie/{sort_by}")
     suspend fun getMovies(
         @Path("sort_by") sortBy: String,
+        @Query("page") page: Int = 1,
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DB_API_KEY
     ): BaseApiResponse<Movie>
 
