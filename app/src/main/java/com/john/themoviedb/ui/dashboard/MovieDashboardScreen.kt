@@ -2,23 +2,33 @@ package com.john.themoviedb.ui.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,7 +45,6 @@ import coil.request.ImageRequest
 import com.john.themoviedb.AppViewModelProvider
 import com.john.themoviedb.R
 import com.john.themoviedb.models.Movie
-import com.john.themoviedb.ui.TheMovieDbTopAppBar
 import com.john.themoviedb.ui.navigation.NavigationDestination
 
 object MovieDashboardDestination : NavigationDestination {
@@ -69,7 +78,6 @@ fun MovieDashboardScreen(
     }
 }
 
-
 @Composable
 fun LoadingScreen(modifier: Modifier) {
     Image(
@@ -99,9 +107,8 @@ private fun MovieDashboardSuccessScreen(
     modifier: Modifier
 ) {
     Scaffold(topBar = {
-        TheMovieDbTopAppBar(
-            title = stringResource(id = MovieDashboardDestination.titleRes),
-            canNavigateBack = false
+        DashboardTopAppBar(
+            title = stringResource(id = MovieDashboardDestination.titleRes)
         )
     })
     { innerPadding ->
@@ -113,6 +120,71 @@ private fun MovieDashboardSuccessScreen(
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DashboardTopAppBar(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Text(title)
+        },
+        actions = {
+            FilterMovieTypesMenu()
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun FilterMovieTypesMenu() {
+    TopAppBarDropdownMenu(
+        iconContent = {
+            Icon(
+                painterResource(id = R.drawable.ic_filter_list),
+                stringResource(id = R.string.menu_more)
+            )
+        }
+    ) { closeMenu ->
+        DropdownMenuItem(onClick = { closeMenu() }, text = {
+            Text(text = stringResource(id = R.string.popular_movie))
+        })
+        DropdownMenuItem(onClick = { closeMenu() }, text = {
+            Text(text = stringResource(id = R.string.top_rated_movie))
+        })
+        DropdownMenuItem(onClick = { closeMenu() }, text = {
+            Text(text = stringResource(id = R.string.now_playing_movie))
+        })
+        DropdownMenuItem(onClick = { closeMenu() }, text = {
+            Text(text = stringResource(id = R.string.upcoming_movie))
+        })
+    }
+}
+
+@Composable
+private fun TopAppBarDropdownMenu(
+    iconContent: @Composable () -> Unit,
+    content: @Composable ColumnScope.(() -> Unit) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+        IconButton(onClick = { expanded = !expanded }) {
+            iconContent()
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+        ) {
+            content { expanded = !expanded }
+        }
+    }
+}
+
+
 @Composable
 private fun MovieDashboardContent(
     dashboardState: MovieDashboardState,
@@ -122,11 +194,11 @@ private fun MovieDashboardContent(
     val uiState = dashboardState.uiState as MovieDashboardUiState.Success
     val lazyPagingItems: LazyPagingItems<Movie> = uiState.movies.collectAsLazyPagingItems()
     LazyVerticalGrid(
-        columns =  GridCells.Adaptive(150.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(4.dp)
     ) {
-        if(lazyPagingItems.loadState.refresh == LoadState.Loading) {
+        if (lazyPagingItems.loadState.refresh == LoadState.Loading) {
             item {
                 LoadingScreen(
                     modifier = modifier
@@ -147,7 +219,7 @@ private fun MovieDashboardContent(
             )
         }
 
-        if(lazyPagingItems.loadState.append == LoadState.Loading) {
+        if (lazyPagingItems.loadState.append == LoadState.Loading) {
             item {
                 LoadingScreen(
                     modifier = modifier
@@ -170,8 +242,7 @@ private fun MovieListItem(
         modifier = modifier
             .padding(4.dp)
             .fillMaxWidth()
-            .aspectRatio(1f)
-            ,
+            .aspectRatio(1f),
         onClick = onMovieClick,
     ) {
         AsyncImage(
