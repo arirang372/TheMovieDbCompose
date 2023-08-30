@@ -10,5 +10,6 @@
     <string name="top_rated_movie">Top Rated</string>
     <string name="now_playing_movie">Now Playing</string>
     <string name="upcoming_movie">Upcoming</string>
+    <string name="favorite_movie">Favorite</string>
 
 </resources>

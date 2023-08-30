@@ -69,6 +69,7 @@ fun MovieDashboardScreen(
         is MovieDashboardUiState.Success -> MovieDashboardSuccessScreen(
             dashboardState = dashboardState,
             movieItemPressed = navigateToDetailPage,
+            viewModel = viewModel,
             modifier = modifier
         )
 
@@ -104,11 +105,13 @@ fun ErrorScreen(modifier: Modifier = Modifier, error: String) {
 private fun MovieDashboardSuccessScreen(
     dashboardState: MovieDashboardState,
     movieItemPressed: (String) -> Unit,
+    viewModel: MovieDashboardViewModel,
     modifier: Modifier
 ) {
     Scaffold(topBar = {
         DashboardTopAppBar(
-            title = stringResource(id = MovieDashboardDestination.titleRes)
+            title = stringResource(id = MovieDashboardDestination.titleRes),
+            viewModel
         )
     })
     { innerPadding ->
@@ -125,21 +128,25 @@ private fun MovieDashboardSuccessScreen(
 @Composable
 fun DashboardTopAppBar(
     title: String,
+    viewModel: MovieDashboardViewModel,
     modifier: Modifier = Modifier
 ) {
+    val stringRes = viewModel.sortByFieldStringRes.collectAsState()
     TopAppBar(
         title = {
-            Text(title)
+            Text("$title - ${stringResource(id = stringRes.value)}")
         },
         actions = {
-            FilterMovieTypesMenu()
+            FilterMovieTypesMenu(viewModel.createDropDownMenuItemModels())
         },
         modifier = modifier
     )
 }
 
 @Composable
-private fun FilterMovieTypesMenu() {
+private fun FilterMovieTypesMenu(
+    menuItemModels: List<DropDownMenuItemModel>
+) {
     TopAppBarDropdownMenu(
         iconContent = {
             Icon(
@@ -148,18 +155,15 @@ private fun FilterMovieTypesMenu() {
             )
         }
     ) { closeMenu ->
-        DropdownMenuItem(onClick = { closeMenu() }, text = {
-            Text(text = stringResource(id = R.string.popular_movie))
-        })
-        DropdownMenuItem(onClick = { closeMenu() }, text = {
-            Text(text = stringResource(id = R.string.top_rated_movie))
-        })
-        DropdownMenuItem(onClick = { closeMenu() }, text = {
-            Text(text = stringResource(id = R.string.now_playing_movie))
-        })
-        DropdownMenuItem(onClick = { closeMenu() }, text = {
-            Text(text = stringResource(id = R.string.upcoming_movie))
-        })
+        menuItemModels.forEach { menuItem ->
+            DropdownMenuItem(
+                onClick = {
+                    menuItem.onSearchMoviesByType()
+                    closeMenu()
+                }, text = {
+                    Text(text = stringResource(id = menuItem.menuTextResource))
+                })
+        }
     }
 }
 
