@@ -1,9 +1,6 @@
 package com.john.themoviedb.ui.dashboard
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -42,9 +39,12 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.gson.Gson
 import com.john.themoviedb.AppViewModelProvider
 import com.john.themoviedb.R
 import com.john.themoviedb.models.Movie
+import com.john.themoviedb.ui.ErrorScreen
+import com.john.themoviedb.ui.LoadingScreen
 import com.john.themoviedb.ui.navigation.NavigationDestination
 
 object MovieDashboardDestination : NavigationDestination {
@@ -76,27 +76,6 @@ fun MovieDashboardScreen(
         is MovieDashboardUiState.Error ->
             ErrorScreen(error = (dashboardState.uiState as MovieDashboardUiState.Error).message)
 
-    }
-}
-
-@Composable
-fun LoadingScreen(modifier: Modifier) {
-    Image(
-        painter = painterResource(id = R.drawable.progress_bar),
-        contentDescription = stringResource(id = R.string.loading),
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun ErrorScreen(modifier: Modifier = Modifier, error: String) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = error)
     }
 }
 
@@ -216,9 +195,12 @@ private fun MovieDashboardContent(
             count = lazyPagingItems.itemCount
         ) { index ->
             val movie = lazyPagingItems[index]!!
+
             MovieListItem(
                 movie = movie,
-                onMovieClick = {},
+                onMovieClick = {
+                    movieItemPressed(Gson().toJson(movie))
+                },
                 modifier = modifier
             )
         }
