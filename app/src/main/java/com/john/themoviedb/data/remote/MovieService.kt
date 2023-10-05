@@ -22,13 +22,13 @@ interface MovieService {
     ): BaseApiResponse<Movie>
 
     @GET("/3/movie/{id}/reviews")
-    fun getMovieReviews(
+    suspend fun getMovieReviews(
         @Path("id") id: Long,
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DB_API_KEY
     ): ApiResponse<Review>
 
     @GET("/3/movie/{id}/videos")
-    fun getMovieTrailers(
+    suspend fun getMovieTrailers(
         @Path("id") id: Long,
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DB_API_KEY
     ): ApiResponse<Trailer>

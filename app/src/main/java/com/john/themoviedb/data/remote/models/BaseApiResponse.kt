@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 open class BaseApiResponse<T : Comparable<T>> {
     @SerializedName("results")
-    lateinit var results: MutableList<T>
+    var results: List<T> = emptyList()
 
     @SerializedName("total_pages")
     var totalPages: Int = 0
