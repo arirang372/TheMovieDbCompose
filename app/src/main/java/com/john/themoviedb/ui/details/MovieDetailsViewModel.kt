@@ -13,29 +13,28 @@ import kotlinx.coroutines.launch
 
 class MovieDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val repository: MovieRepository) : ViewModel() {
+    private val repository: MovieRepository
+) : ViewModel() {
 
     private val _detailState = MutableStateFlow(MovieDetailsState())
     val detailState: StateFlow<MovieDetailsState> = _detailState
-
 
     init {
         val movieString: String = checkNotNull(savedStateHandle[MovieDetailsDestination.movieObj])
         val selectedMovie: Movie = Gson().fromJson(movieString, Movie::class.java)
         _detailState.value = _detailState.value.copy(
-            movie = selectedMovie,
-            uiState = MovieDetailsUiState.Success(emptyList())
+            movie = selectedMovie
         )
+        fetchMovieTrailersAndReviews(selectedMovie.id)
     }
 
-
-    fun fetchMovieTrailersAndReviews(movieId: Long) = viewModelScope.launch {
-
+    private fun fetchMovieTrailersAndReviews(movieId: Long) = viewModelScope.launch {
         try {
             repository.loadReviewsAndTrailers(movieId)
                 .collect { trailersAndReviews ->
                     _detailState.value =
                         _detailState.value.copy(
+                            trailersAndReviews = trailersAndReviews,
                             uiState = MovieDetailsUiState.Success(trailersAndReviews)
                         )
                 }

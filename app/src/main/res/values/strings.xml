@@ -8,11 +8,17 @@
     <string name="menu_more">More</string>
     <string name="movie_list_item_image">Movie List Item Image</string>
     <string name="movie_poster_item_image">Movie Post Item Image</string>
+    <string name="movie_trailer_item_image">Movie Trailer Item Image</string>
+
+    <string name="movie_details_items">Movie Details Items</string>
 
     <string name="popular_movie">Popular</string>
     <string name="top_rated_movie">Top Rated</string>
     <string name="now_playing_movie">Now Playing</string>
     <string name="upcoming_movie">Upcoming</string>
     <string name="favorite_movie">Favorite</string>
+
+    <string name="release_date_text">Release Date: %s</string>
+
     <string name="vote_average_text">TMDb: %s /10</string>
 </resources>
