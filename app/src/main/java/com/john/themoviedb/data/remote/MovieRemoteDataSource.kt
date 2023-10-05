@@ -3,6 +3,7 @@ package com.john.themoviedb.data.remote
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.john.themoviedb.data.remote.models.ApiResponse
 import com.john.themoviedb.models.Category
 import com.john.themoviedb.models.Movie
 import com.john.themoviedb.models.Review
@@ -31,15 +32,15 @@ class MovieRemoteDataSource(
         ).flow
     }
 
-    override fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>> {
-        val trailers = flow {
+    override suspend fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>> {
+        val trailers: Flow<List<Trailer>> = flow {
             emit(
                 service.getMovieTrailers(
                     movieId
                 ).results
             )
         }
-        val reviews = flow {
+        val reviews: Flow<List<Review>> = flow {
             emit(
                 service.getMovieReviews(
                     movieId
@@ -58,9 +59,9 @@ class MovieRemoteDataSource(
     }
 
     private fun appendMovieIdsOnReviews(
-        reviews: MutableList<Review>,
+        reviews: List<Review>,
         movieId: Long
-    ): MutableList<Review> {
+    ): List<Review> {
         for (review in reviews) {
             review.movieId = movieId
         }
@@ -68,9 +69,9 @@ class MovieRemoteDataSource(
     }
 
     private fun createTrailerUrls(
-        trailers: MutableList<Trailer>,
+        trailers: List<Trailer>,
         movieId: Long
-    ): MutableList<Trailer> {
+    ): List<Trailer> {
         for (trailer in trailers) {
             trailer.movieId = movieId
             trailer.trailerImageUrl = String.format(YOUTUBE_IMAGE_URL_BASE, trailer.key)

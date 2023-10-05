@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ import com.john.themoviedb.AppViewModelProvider
 import com.john.themoviedb.COLLAPSED_TOP_BAR_HEIGHT
 import com.john.themoviedb.EXPANDED_TOP_BAR_HEIGHT
 import com.john.themoviedb.R
+import com.john.themoviedb.models.Category
 import com.john.themoviedb.models.Movie
 import com.john.themoviedb.models.Review
 import com.john.themoviedb.models.Trailer
@@ -64,7 +66,6 @@ object MovieDetailsDestination : NavigationDestination {
     const val movieObj = "movieObject"
     val routeWithArgs = "$route?$movieObj={$movieObj}"
 }
-
 
 @Composable
 fun MovieDetailsScreen(
@@ -129,10 +130,17 @@ private fun MovieDetailsContentScreen(
                     )
                 }
                 item {
-                    MovieDetailContent(
+                    MovieDetailsTopContent(
                         detailsState.movie,
-                        {},
-                        {},
+                        modifier
+                    )
+                }
+
+                items(count = detailsState.trailersAndReviews.size) { index ->
+                    MovieDetailsBottomEachContent(
+                        detailsState.trailersAndReviews[index],
+                        onTrailerPressed,
+                        onReviewPressed,
                         modifier
                     )
                 }
@@ -142,10 +150,8 @@ private fun MovieDetailsContentScreen(
 }
 
 @Composable
-private fun MovieDetailContent(
+private fun MovieDetailsTopContent(
     movie: Movie,
-    onTrailerPressed: (Trailer) -> Unit = {},
-    onReviewPressed: (Review) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -175,17 +181,18 @@ private fun MovieDetailContent(
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(8.dp)
             ) {
                 Text(
                     text = movie.title.orEmpty(),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
                 )
 
                 RatingBar(
                     value = movie.rating,
+                    spaceBetween = 0.dp,
                     style = RatingBarStyle.Fill(),
                 )
 
@@ -206,30 +213,52 @@ private fun MovieDetailContent(
                         id = R.string.vote_average_text,
                         movie.vote_average.orEmpty()
                     ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = modifier.padding(start = 16.dp)
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = modifier.padding(top = 8.dp)
                 )
 
                 Text(
-                    text = movie.release_date.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = modifier.padding(start = 16.dp)
+                    text = stringResource(
+                        id = R.string.release_date_text,
+                        movie.release_date.orEmpty()
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
 
         Text(
             text = movie.overview.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.outline,
             modifier = modifier.padding(start = 16.dp)
         )
     }
-
 }
 
+@Composable
+private fun MovieDetailsBottomEachContent(
+    content: Comparable<*>,
+    onTrailerPressed: (Trailer) -> Unit = {},
+    onReviewPressed: (Review) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    when (content) {
+        is Category -> {
+            TitleListItem(content, modifier = modifier)
+        }
+
+        is Trailer -> {
+            TrailerListItem(content, modifier = modifier)
+        }
+
+        is Review -> {
+            ReviewListItem(content, modifier = modifier)
+        }
+    }
+}
 
 @Composable
 private fun CollapsedTopAppBar(
