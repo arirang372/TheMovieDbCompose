@@ -1,5 +1,8 @@
 package com.john.themoviedb.ui.details
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,10 +41,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -97,9 +100,7 @@ fun MovieDetailsScreen(
 private fun MovieDetailsContentScreen(
     detailsState: MovieDetailsState,
     modifier: Modifier = Modifier,
-    onBackPressed: () -> Unit = {},
-    onTrailerPressed: (Trailer) -> Unit = {},
-    onReviewPressed: (Review) -> Unit = {}
+    onBackPressed: () -> Unit = {}
 ) {
 
     val listState = rememberLazyListState()
@@ -139,8 +140,6 @@ private fun MovieDetailsContentScreen(
                 items(count = detailsState.trailersAndReviews.size) { index ->
                     MovieDetailsBottomEachContent(
                         detailsState.trailersAndReviews[index],
-                        onTrailerPressed,
-                        onReviewPressed,
                         modifier
                     )
                 }
@@ -148,6 +147,11 @@ private fun MovieDetailsContentScreen(
         }
     }
 }
+
+private fun openUri(context: Context, uri: String) {
+    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+}
+
 
 @Composable
 private fun MovieDetailsTopContent(
@@ -241,21 +245,24 @@ private fun MovieDetailsTopContent(
 @Composable
 private fun MovieDetailsBottomEachContent(
     content: Comparable<*>,
-    onTrailerPressed: (Trailer) -> Unit = {},
-    onReviewPressed: (Review) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     when (content) {
         is Category -> {
             TitleListItem(content, modifier = modifier)
         }
 
         is Trailer -> {
-            TrailerListItem(content, modifier = modifier)
+            TrailerListItem(content, { content ->
+                openUri(context, content.trailerVideoUrl.orEmpty())
+            }, modifier = modifier)
         }
 
         is Review -> {
-            ReviewListItem(content, modifier = modifier)
+            ReviewListItem(content, { content ->
+                openUri(context, content.url.orEmpty())
+            }, modifier = modifier)
         }
     }
 }
