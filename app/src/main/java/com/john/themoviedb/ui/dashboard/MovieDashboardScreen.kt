@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import com.john.themoviedb.models.Movie
 import com.john.themoviedb.ui.ErrorScreen
 import com.john.themoviedb.ui.LoadingScreen
 import com.john.themoviedb.ui.navigation.NavigationDestination
+import kotlinx.coroutines.launch
 
 object MovieDashboardDestination : NavigationDestination {
     override val route: String = "dashboard"
@@ -176,6 +178,7 @@ private fun MovieDashboardContent(
 ) {
     val uiState = dashboardState.uiState as MovieDashboardUiState.Success
     val lazyPagingItems: LazyPagingItems<Movie> = uiState.movies.collectAsLazyPagingItems()
+    val coroutineScope = rememberCoroutineScope()
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
         modifier = modifier.fillMaxWidth(),
@@ -195,11 +198,12 @@ private fun MovieDashboardContent(
             count = lazyPagingItems.itemCount
         ) { index ->
             val movie = lazyPagingItems[index]!!
-
             MovieListItem(
                 movie = movie,
                 onMovieClick = {
-                    movieItemPressed(Gson().toJson(movie))
+                    coroutineScope.launch {
+                        movieItemPressed(Gson().toJson(movie))
+                    }
                 },
                 modifier = modifier
             )
