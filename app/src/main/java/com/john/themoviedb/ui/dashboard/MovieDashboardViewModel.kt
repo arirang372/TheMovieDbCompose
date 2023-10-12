@@ -53,6 +53,13 @@ class MovieDashboardViewModel(private val repository: MovieRepository) : ViewMod
                 fetchMovies(MovieType.UPCOMING.type)
             },
             menuTextResource = R.string.upcoming_movie
+        ),
+        DropDownMenuItemModel(
+            onSearchMoviesByType = {
+                updateSortByFieldStringResource(R.string.favorite_movie)
+                fetchMovies(MovieType.FAVORITE.type)
+            },
+            menuTextResource = R.string.favorite_movie
         )
     )
 

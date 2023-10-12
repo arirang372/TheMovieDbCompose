@@ -76,6 +76,7 @@ dependencies {
     //paging
     implementation "androidx.paging:paging-runtime:$rootProject.pagingVersion"
     implementation "androidx.paging:paging-compose:$rootProject.pagingVersion"
+    implementation "androidx.room:room-paging:$rootProject.roomPagingVersion"
 
     //navigation for androidx compose
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationVersion"

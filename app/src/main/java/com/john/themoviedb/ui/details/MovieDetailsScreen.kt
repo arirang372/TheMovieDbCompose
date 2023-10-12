@@ -44,7 +44,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -85,6 +84,7 @@ fun MovieDetailsScreen(
         )
 
         is MovieDetailsUiState.Success -> MovieDetailsContentScreen(
+            viewModel = viewModel,
             detailsState = detailsState,
             modifier = modifier,
             onBackPressed = navigateBack
@@ -98,9 +98,10 @@ fun MovieDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MovieDetailsContentScreen(
+    viewModel: MovieDetailsViewModel,
     detailsState: MovieDetailsState,
     modifier: Modifier = Modifier,
-    onBackPressed: () -> Unit = {}
+    onBackPressed: () -> Unit
 ) {
 
     val listState = rememberLazyListState()
@@ -132,6 +133,7 @@ private fun MovieDetailsContentScreen(
                 }
                 item {
                     MovieDetailsTopContent(
+                        viewModel,
                         detailsState.movie,
                         modifier
                     )
@@ -155,6 +157,7 @@ private fun openUri(context: Context, uri: String) {
 
 @Composable
 private fun MovieDetailsTopContent(
+    viewModel: MovieDetailsViewModel,
     movie: Movie,
     modifier: Modifier = Modifier
 ) {
@@ -199,9 +202,15 @@ private fun MovieDetailsTopContent(
                     spaceBetween = 0.dp,
                     style = RatingBarStyle.Fill(),
                 )
-
+                val buttonText = viewModel.getButtonText()
                 Button(
-                    onClick = {},
+                    onClick = {
+                        if (buttonText == R.string.mark_as_favorite) {
+                            viewModel.markMovieAsFavorite(movie = movie)
+                        } else {
+                            viewModel.removeMovieFromFavorite(movie)
+                        }
+                    },
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -209,7 +218,7 @@ private fun MovieDetailsTopContent(
                         containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
-                    Text(stringResource(id = R.string.mark_as_favorite))
+                    Text(stringResource(id = buttonText))
                 }
 
                 Text(
