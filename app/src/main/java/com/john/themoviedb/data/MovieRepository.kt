@@ -13,7 +13,7 @@ interface MovieRepository {
 
     suspend fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>>
 
-    suspend fun getMovie(id: Long): Flow<Movie>
+    suspend fun getMovie(id: Long): Flow<Movie?>
 
     suspend fun saveMovie(movie: Movie)
 

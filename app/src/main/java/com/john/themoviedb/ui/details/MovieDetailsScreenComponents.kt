@@ -55,6 +55,7 @@ fun TitleListItem(
 @Composable
 fun TrailerListItem(
     trailer: Trailer,
+    onTrailerPressed: (Trailer) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -88,7 +89,7 @@ fun TrailerListItem(
                     .height(16.dp)
                     .align(Alignment.Center)
                     .clickable {
-
+                        onTrailerPressed(trailer)
                     },
                 contentScale = ContentScale.Crop
             )
@@ -106,11 +107,15 @@ fun TrailerListItem(
 @Composable
 fun ReviewListItem(
     review: Review,
+    onReviewPressed: (Review) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .clickable {
+                onReviewPressed(review)
+            }
     ) {
 
         Text(

@@ -1,5 +1,6 @@
 package com.john.themoviedb.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
@@ -11,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface MovieDao {
 
     @Query("SELECT * FROM movie")
-    fun getAllMovies(): Flow<List<Movie>>
+    fun getAllMovies(): PagingSource<Int, Movie>
 
     @Query("SELECT * FROM movie WHERE id = :id")
-    fun getMovieById(id: Long): Flow<Movie>
+    fun getMovieById(id: Long): Flow<Movie?>
 
     @Upsert
     suspend fun upsert(movie: Movie)

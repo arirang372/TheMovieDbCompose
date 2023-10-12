@@ -1,5 +1,8 @@
 package com.john.themoviedb.ui.details
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -82,6 +84,7 @@ fun MovieDetailsScreen(
         )
 
         is MovieDetailsUiState.Success -> MovieDetailsContentScreen(
+            viewModel = viewModel,
             detailsState = detailsState,
             modifier = modifier,
             onBackPressed = navigateBack
@@ -95,11 +98,10 @@ fun MovieDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MovieDetailsContentScreen(
+    viewModel: MovieDetailsViewModel,
     detailsState: MovieDetailsState,
     modifier: Modifier = Modifier,
-    onBackPressed: () -> Unit = {},
-    onTrailerPressed: (Trailer) -> Unit = {},
-    onReviewPressed: (Review) -> Unit = {}
+    onBackPressed: () -> Unit
 ) {
 
     val listState = rememberLazyListState()
@@ -131,6 +133,7 @@ private fun MovieDetailsContentScreen(
                 }
                 item {
                     MovieDetailsTopContent(
+                        viewModel,
                         detailsState.movie,
                         modifier
                     )
@@ -139,8 +142,6 @@ private fun MovieDetailsContentScreen(
                 items(count = detailsState.trailersAndReviews.size) { index ->
                     MovieDetailsBottomEachContent(
                         detailsState.trailersAndReviews[index],
-                        onTrailerPressed,
-                        onReviewPressed,
                         modifier
                     )
                 }
@@ -149,8 +150,14 @@ private fun MovieDetailsContentScreen(
     }
 }
 
+private fun openUri(context: Context, uri: String) {
+    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+}
+
+
 @Composable
 private fun MovieDetailsTopContent(
+    viewModel: MovieDetailsViewModel,
     movie: Movie,
     modifier: Modifier = Modifier
 ) {
@@ -195,9 +202,15 @@ private fun MovieDetailsTopContent(
                     spaceBetween = 0.dp,
                     style = RatingBarStyle.Fill(),
                 )
-
+                val buttonText = viewModel.getButtonText()
                 Button(
-                    onClick = {},
+                    onClick = {
+                        if (buttonText == R.string.mark_as_favorite) {
+                            viewModel.markMovieAsFavorite(movie = movie)
+                        } else {
+                            viewModel.removeMovieFromFavorite(movie)
+                        }
+                    },
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -205,7 +218,7 @@ private fun MovieDetailsTopContent(
                         containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
-                    Text(stringResource(id = R.string.mark_as_favorite))
+                    Text(stringResource(id = buttonText))
                 }
 
                 Text(
@@ -241,21 +254,24 @@ private fun MovieDetailsTopContent(
 @Composable
 private fun MovieDetailsBottomEachContent(
     content: Comparable<*>,
-    onTrailerPressed: (Trailer) -> Unit = {},
-    onReviewPressed: (Review) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     when (content) {
         is Category -> {
             TitleListItem(content, modifier = modifier)
         }
 
         is Trailer -> {
-            TrailerListItem(content, modifier = modifier)
+            TrailerListItem(content, { content ->
+                openUri(context, content.trailerVideoUrl.orEmpty())
+            }, modifier = modifier)
         }
 
         is Review -> {
-            ReviewListItem(content, modifier = modifier)
+            ReviewListItem(content, { content ->
+                openUri(context, content.url.orEmpty())
+            }, modifier = modifier)
         }
     }
 }
