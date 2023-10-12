@@ -2,11 +2,9 @@ package com.john.themoviedb.data
 
 import com.john.themoviedb.data.local.LocalDataSource
 import com.john.themoviedb.data.remote.RemoteDataSource
-import com.john.themoviedb.data.remote.models.ApiResponse
 import com.john.themoviedb.models.Movie
-import com.john.themoviedb.models.Trailer
+import com.john.themoviedb.ui.dashboard.MovieType
 import kotlinx.coroutines.flow.Flow
-
 
 class DefaultMovieRepository(
     private val remoteDataSource: RemoteDataSource,
@@ -15,11 +13,14 @@ class DefaultMovieRepository(
 
     override suspend fun deleteMovie(id: Long) = localDataSource.deleteMovie(id)
 
-    override suspend fun getMovie(id: Long): Flow<Movie> =
+    override suspend fun getMovie(id: Long): Flow<Movie?> =
         localDataSource.getMovie(id)
 
-    override suspend fun loadAllMovies(sortBy: String) =
+    override suspend fun loadAllMovies(sortBy: String) = if (sortBy == MovieType.FAVORITE.type) {
+        localDataSource.getAllMovies()
+    } else {
         remoteDataSource.loadAllMoviesPagingData(sortBy)
+    }
 
     override suspend fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>> =
         remoteDataSource.loadReviewsAndTrailers(movieId)

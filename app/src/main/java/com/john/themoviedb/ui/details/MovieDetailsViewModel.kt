@@ -8,7 +8,9 @@ import com.john.themoviedb.data.MovieRepository
 import com.john.themoviedb.models.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.john.themoviedb.R
 
 
 class MovieDetailsViewModel(
@@ -26,7 +28,47 @@ class MovieDetailsViewModel(
             movie = selectedMovie
         )
         fetchMovieTrailersAndReviews(selectedMovie.id)
+        setMovieFavorite(selectedMovie.id)
     }
+
+    fun markMovieAsFavorite(movie: Movie) {
+        viewModelScope.launch {
+            repository.saveMovie(movie)
+            setMovieFavorite(movie.id)
+        }
+    }
+
+    fun removeMovieFromFavorite(movie: Movie) {
+        viewModelScope.launch {
+            repository.deleteMovie(movie.id)
+            setMovieFavorite(movie.id)
+        }
+    }
+
+    private fun setMovieFavorite(id: Long) = viewModelScope.launch {
+        repository.getMovie(id).collect { movie ->
+            if (movie == null) {
+                updateIsFavorite(false)
+            } else {
+                updateIsFavorite(true)
+            }
+        }
+    }
+
+    private fun updateIsFavorite(isFavorite: Boolean) {
+        _detailState.update {
+            it.copy(
+                isFavorite = isFavorite
+            )
+        }
+    }
+
+    fun getButtonText() = if (_detailState.value.isFavorite) {
+        R.string.remove_from_favorite
+    } else {
+        R.string.mark_as_favorite
+    }
+
 
     private fun fetchMovieTrailersAndReviews(movieId: Long) = viewModelScope.launch {
         try {

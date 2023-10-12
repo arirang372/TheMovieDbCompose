@@ -15,6 +15,7 @@ data class MovieDetailsState(
         backdrop_path = null
     ),
     val trailersAndReviews: List<Comparable<*>> = emptyList(),
+    val isFavorite: Boolean = false,
     val uiState: MovieDetailsUiState = MovieDetailsUiState.Loading
 )
 
