@@ -28,5 +28,18 @@ data class Movie(
     var backdrop_path: String?
 ) : Comparable<Movie>, Parcelable {
     override fun compareTo(other: Movie) = 0
+
+    companion object {
+        val EMPTY = Movie(
+            id = 0,
+            vote_average = null,
+            rating = 0f,
+            poster_path = null,
+            overview = null,
+            title = null,
+            release_date = null,
+            backdrop_path = null
+        )
+    }
 }
 

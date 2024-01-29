@@ -4,16 +4,7 @@ import com.john.themoviedb.models.Movie
 
 
 data class MovieDetailsState(
-    val movie: Movie = Movie(
-        id = 0,
-        vote_average = null,
-        rating = 0f,
-        poster_path = null,
-        overview = null,
-        title = null,
-        release_date = null,
-        backdrop_path = null
-    ),
+    val movie: Movie = Movie.EMPTY,
     val trailersAndReviews: List<Comparable<*>> = emptyList(),
     val isFavorite: Boolean = false,
     val uiState: MovieDetailsUiState = MovieDetailsUiState.Loading

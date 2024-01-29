@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.john.themoviedb.ui.dashboard.MovieDashboardViewModel
 import com.john.themoviedb.ui.details.MovieDetailsViewModel
+import com.john.themoviedb.ui.trailer.MovieTrailerViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -21,8 +22,12 @@ object AppViewModelProvider {
                 theMovieDbApplication().container.repository
             )
         }
+        initializer {
+            MovieTrailerViewModel(
+                this.createSavedStateHandle()
+            )
+        }
     }
-
 }
 
 

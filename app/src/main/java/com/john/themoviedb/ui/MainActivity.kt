@@ -1,15 +1,11 @@
 package com.john.themoviedb.ui
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import com.john.themoviedb.ui.theme.TheMovieDBComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,4 +18,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+fun provideExoPlayer(context: Context, mediaItem: MediaItem): ExoPlayer =
+    ExoPlayer.Builder(context)
+        .build().apply {
+            this.setMediaItem(mediaItem)
+        }
 

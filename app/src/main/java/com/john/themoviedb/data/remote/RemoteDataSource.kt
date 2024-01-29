@@ -11,5 +11,4 @@ interface RemoteDataSource {
     fun loadAllMoviesPagingData(sortBy: String): Flow<PagingData<Movie>>
 
     suspend fun loadReviewsAndTrailers(movieId: Long): Flow<List<Comparable<*>>>
-
 }

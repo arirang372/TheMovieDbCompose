@@ -11,6 +11,8 @@ import com.john.themoviedb.ui.dashboard.MovieDashboardDestination
 import com.john.themoviedb.ui.dashboard.MovieDashboardScreen
 import com.john.themoviedb.ui.details.MovieDetailsDestination
 import com.john.themoviedb.ui.details.MovieDetailsScreen
+import com.john.themoviedb.ui.trailer.MovieTrailerDestination
+import com.john.themoviedb.ui.trailer.MovieTrailerScreen
 
 
 @Composable
@@ -39,7 +41,26 @@ fun TheMovieDbNavHost(
                 }
             )
         ) {
-            MovieDetailsScreen(navigateBack = {
+            MovieDetailsScreen(
+                navigateBack = {
+                    navController.navigateUp()
+                },
+                navigateToMovieTrailerPage = { detail ->
+                    navController.navigate("${MovieTrailerDestination.route}?${MovieTrailerDestination.detailObj}=${detail}")
+                },
+                modifier = modifier
+            )
+        }
+        composable(
+            route = MovieTrailerDestination.routeWithArgs,
+            arguments = listOf(
+                navArgument(MovieTrailerDestination.detailObj) {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {
+            MovieTrailerScreen(navigateBack = {
                 navController.navigateUp()
             }, modifier = modifier)
         }

@@ -11,7 +11,8 @@
     <string name="movie_trailer_item_image">Movie Trailer Item Image</string>
 
     <string name="movie_details_items">Movie Details Items</string>
-
+    <string name="movie_trailer_title">Movie Trailer Title</string>
+    <string name="movie_trailer_currently_playing">%s - currently playing</string>
     <string name="popular_movie">Popular</string>
     <string name="top_rated_movie">Top Rated</string>
     <string name="now_playing_movie">Now Playing</string>

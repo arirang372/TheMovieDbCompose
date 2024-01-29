@@ -13,4 +13,15 @@ data class Review(
     var movieId: Long
 ) : Comparable<Review>, Parcelable {
     override fun compareTo(other: Review) = 0
+
+    companion object {
+        val EMPTY = Review(
+            author = "",
+            content = "",
+            id = "",
+            url = "",
+            movieId = 0L
+        )
+    }
 }
+
