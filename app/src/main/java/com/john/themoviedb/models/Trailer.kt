@@ -14,6 +14,20 @@ data class Trailer(
     var trailerImageUrl: String?,
     var trailerVideoUrl: String?,
     var movieId: Long
-): Comparable<Trailer>, Parcelable {
+) : Comparable<Trailer>, Parcelable {
     override fun compareTo(other: Trailer) = 0
+
+    companion object {
+        val EMPTY = Trailer(
+            id = "",
+            key = "",
+            name = "",
+            site = "",
+            size = 0,
+            type = "",
+            trailerImageUrl = "",
+            trailerVideoUrl = "",
+            movieId = 0L
+        )
+    }
 }

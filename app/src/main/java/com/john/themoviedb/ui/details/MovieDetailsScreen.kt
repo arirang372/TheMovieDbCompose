@@ -47,12 +47,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.gson.Gson
 import com.john.themoviedb.AppViewModelProvider
 import com.john.themoviedb.COLLAPSED_TOP_BAR_HEIGHT
 import com.john.themoviedb.EXPANDED_TOP_BAR_HEIGHT
 import com.john.themoviedb.R
 import com.john.themoviedb.models.Category
 import com.john.themoviedb.models.Movie
+import com.john.themoviedb.models.MovieDetails
 import com.john.themoviedb.models.Review
 import com.john.themoviedb.models.Trailer
 import com.john.themoviedb.ui.ErrorScreen
@@ -72,6 +74,7 @@ object MovieDetailsDestination : NavigationDestination {
 @Composable
 fun MovieDetailsScreen(
     navigateBack: () -> Unit,
+    navigateToMovieTrailerPage: (String) -> Unit,
     modifier: Modifier,
     viewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -86,6 +89,7 @@ fun MovieDetailsScreen(
         is MovieDetailsUiState.Success -> MovieDetailsContentScreen(
             viewModel = viewModel,
             detailsState = detailsState,
+            navigateToMovieTrailerPage,
             modifier = modifier,
             onBackPressed = navigateBack
         )
@@ -100,6 +104,7 @@ fun MovieDetailsScreen(
 private fun MovieDetailsContentScreen(
     viewModel: MovieDetailsViewModel,
     detailsState: MovieDetailsState,
+    trailerPressed: (String) -> Unit,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit
 ) {
@@ -139,9 +144,13 @@ private fun MovieDetailsContentScreen(
                     )
                 }
 
+                val trailers = detailsState.trailersAndReviews.filterIsInstance<Trailer>()
+
                 items(count = detailsState.trailersAndReviews.size) { index ->
                     MovieDetailsBottomEachContent(
                         detailsState.trailersAndReviews[index],
+                        trailers = trailers,
+                        trailerPressed = trailerPressed,
                         modifier
                     )
                 }
@@ -254,6 +263,8 @@ private fun MovieDetailsTopContent(
 @Composable
 private fun MovieDetailsBottomEachContent(
     content: Comparable<*>,
+    trailers: List<Trailer>,
+    trailerPressed: (String)-> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -264,7 +275,13 @@ private fun MovieDetailsBottomEachContent(
 
         is Trailer -> {
             TrailerListItem(content, { content ->
-                openUri(context, content.trailerVideoUrl.orEmpty())
+                //openUri(context, content.trailerVideoUrl.orEmpty())
+                val movieDetails = MovieDetails(
+                    trailers = trailers,
+                    selectedTrailer = content
+                )
+                val json = Gson().toJson(movieDetails)
+                trailerPressed(json)
             }, modifier = modifier)
         }
 
@@ -284,7 +301,8 @@ private fun CollapsedTopAppBar(
     isCollapsed: Boolean
 ) {
     val color: Color by animateColorAsState(
-        if (isCollapsed) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary
+        if (isCollapsed) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary,
+        label = ""
     )
     Box(
         modifier = modifier
